@@ -8,14 +8,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// Ambil API Key dari Environment Variable
 const geminiApiKey = process.env.GEMINI_API_KEY; 
 
 app.post('/api/chat', async (req, res) => {
     try {
         const { systemContext, userPrompt } = req.body;
 
-        // PERBAIKAN: Menggunakan variabel geminiApiKey yang benar
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -42,13 +40,11 @@ app.post('/api/chat', async (req, res) => {
     }
 });
 
-// PERBAIKAN: Jalankan listen HANYA saat di komputer lokal (development)
 if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
-        console.log(`Server SavingPocket berjalan di http://localhost:${PORT}`);
+        console.log(`Server Running`);
     });
 }
 
-// PERBAIKAN: Wajib diekspor untuk kebutuhan Vercel Serverless
 module.exports = app;
