@@ -3,21 +3,20 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
-const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
-// Menyuruh Express untuk melayani file statis di dalam folder yang sama
 app.use(express.static(__dirname));
 
+// Ambil API Key dari Environment Variable
 const geminiApiKey = process.env.GEMINI_API_KEY; 
 
 app.post('/api/chat', async (req, res) => {
     try {
         const { systemContext, userPrompt } = req.body;
 
-        // KODE BARU (Sudah di-update modelnya)
-const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        // PERBAIKAN: Menggunakan variabel geminiApiKey yang benar
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -32,7 +31,6 @@ const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/m
 
         const data = await response.json();
         
-        // Logger untuk melihat respons asli dari Google Gemini
         console.log("=== RESPONS DARI GEMINI ===");
         console.log(JSON.stringify(data, null, 2));
         console.log("===========================");
@@ -44,6 +42,13 @@ const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/m
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Server SavingPocket berjalan di http://localhost:${PORT}`);
-});
+// PERBAIKAN: Jalankan listen HANYA saat di komputer lokal (development)
+if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`Server SavingPocket berjalan di http://localhost:${PORT}`);
+    });
+}
+
+// PERBAIKAN: Wajib diekspor untuk kebutuhan Vercel Serverless
+module.exports = app;
